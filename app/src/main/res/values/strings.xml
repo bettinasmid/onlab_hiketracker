@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">HikeTracker</string>
+    <string name="title_map">Route</string>
+    <string name="title_elevation">Elevation</string>
+    <string name="menu_open">Open GPX file</string>
+    <string name="btn_open">Open</string>
+    <string name="btn_start">Start tracking</string>
+</resources>
