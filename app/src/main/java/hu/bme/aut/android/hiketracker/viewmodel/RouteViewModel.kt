@@ -3,11 +3,22 @@ package hu.bme.aut.android.hiketracker.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import hu.bme.aut.android.hiketracker.data.PointRepository
+import io.ticofab.androidgpxparser.parser.domain.Point
 
 class RouteViewModel : ViewModel() {
+    //private val repo: PointRepository
+    var routePoints: LiveData<List<Point>>
 
-    private val _text = MutableLiveData<String>().apply {
-        value = "This is dashboard Fragment"
+    init{
+        routePoints = MutableLiveData<List<Point>>()
+        //repo = PointRepository(pointDao)
+        //routePoints = repo.getAllPoints()
     }
-    val text: LiveData<String> = _text
+
+    fun savePoints(points: List<Point>){
+        routePoints = MutableLiveData(points)
+    }
+
+
 }

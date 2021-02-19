@@ -3,17 +3,21 @@ package hu.bme.aut.android.hiketracker
 import hu.bme.aut.android.hiketracker.R
 import android.os.Bundle
 import android.view.Menu
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import hu.bme.aut.android.hiketracker.utils.RouteLoader
+import hu.bme.aut.android.hiketracker.viewmodel.RouteViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
 
+    val viewModel : RouteViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -30,13 +34,12 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        setSupportActionBar(toolbar)
-        toolbar.title = title
+        fab.setOnClickListener{
+            //TODO filepickerdialog
+            val loader = RouteLoader(viewModel, applicationContext)
+            loader.loadFile("src/resources/zebegeny_remete_barlang.gpx")
+        }
+
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
 }

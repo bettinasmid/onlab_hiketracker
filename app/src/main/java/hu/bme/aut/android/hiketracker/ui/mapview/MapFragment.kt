@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 
@@ -20,7 +21,7 @@ import hu.bme.aut.android.hiketracker.R
 import hu.bme.aut.android.hiketracker.viewmodel.RouteViewModel
 
 class MapFragment : Fragment() {
-    private lateinit var routeViewModel: RouteViewModel
+    private val routeViewModel: RouteViewModel by activityViewModels()
 
     private val callback = OnMapReadyCallback { googleMap ->
         /**
@@ -43,8 +44,6 @@ class MapFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        routeViewModel =
-            ViewModelProviders.of(this).get(RouteViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_map, container, false)
         //TODO observe viewmodel data
         return root
