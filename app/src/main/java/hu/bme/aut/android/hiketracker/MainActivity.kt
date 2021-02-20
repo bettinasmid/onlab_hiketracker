@@ -1,8 +1,7 @@
 package hu.bme.aut.android.hiketracker
 
-import hu.bme.aut.android.hiketracker.R
 import android.os.Bundle
-import android.view.Menu
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -13,6 +12,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import hu.bme.aut.android.hiketracker.utils.RouteLoader
 import hu.bme.aut.android.hiketracker.viewmodel.RouteViewModel
 import kotlinx.android.synthetic.main.activity_main.*
+import java.io.File
 
 
 class MainActivity : AppCompatActivity() {
@@ -36,9 +36,11 @@ class MainActivity : AppCompatActivity() {
 
         fab.setOnClickListener{
             //TODO filepickerdialog
+
             val loader = RouteLoader(viewModel, applicationContext)
             loader.loadFile("src/resources/zebegeny_remete_barlang.gpx")
         }
+
 
     }
 

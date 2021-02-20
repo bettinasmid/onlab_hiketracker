@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 30
@@ -57,7 +58,9 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-location:17.0.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation "com.github.hotchemi:permissionsdispatcher:3.3.1"
     implementation 'io.ticofab.androidgpxparser:parser:1.6.0'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+    implementation 'com.github.abhishekti7:UnicornFilePicker:1.0.1'
+    implementation "org.permissionsdispatcher:permissionsdispatcher:4.8.0"
+    kapt "org.permissionsdispatcher:permissionsdispatcher-processor:4.8.0"
 }

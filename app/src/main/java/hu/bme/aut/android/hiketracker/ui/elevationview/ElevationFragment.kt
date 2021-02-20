@@ -1,38 +1,36 @@
 package hu.bme.aut.android.hiketracker.ui.elevationview
 
 import android.graphics.Color
+import android.graphics.DashPathEffect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import hu.bme.aut.android.hiketracker.R
 import hu.bme.aut.android.hiketracker.viewmodel.RouteViewModel
 import io.ticofab.androidgpxparser.parser.domain.Point
-import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.android.synthetic.main.fragment_elevation.*
-import java.lang.StringBuilder
+
 
 class ElevationFragment : Fragment() {
 
     private val routeViewModel: RouteViewModel by activityViewModels()
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_elevation, container, false)
-        routeViewModel.routePoints.observe(viewLifecycleOwner, Observer {
-            it -> loadElevationData(it)
+        routeViewModel.routePoints.observe(viewLifecycleOwner, Observer { it ->
+            loadElevationData(it)
         })
         return root
     }
@@ -41,19 +39,12 @@ class ElevationFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         chartElevation.setTouchEnabled(true)
         chartElevation.setPinchZoom(true)
-        //loadMockData()
-    }
-
-    private fun loadMockData() {
-        var entries = mutableListOf<Entry>()
-        for(i in 1..10){
-            entries.add(Entry(i.toFloat(),(i*i).toFloat()))
-        }
-        val dataSet = LineDataSet(entries, "Mock elevation chart")
-        dataSet.color = Color.GREEN
-        val data = LineData(dataSet)
-        chartElevation.data = data
+        chartElevation.setScaleEnabled(true)
+        chartElevation.description.isEnabled = false
         chartElevation.invalidate()
+        chartElevation.setDrawGridBackground(false)
+        chartElevation.xAxis.position=XAxis.XAxisPosition.BOTTOM
+        chartElevation.legend.isEnabled = false
     }
 
     private fun loadElevationData(points: List<Point>){
@@ -62,8 +53,15 @@ class ElevationFragment : Fragment() {
             entries.add(Entry(i.toFloat(), points[i].elevation.toFloat()))
             print(points[i].toString() + '\n')
         }
-        val dataSet = LineDataSet(entries, "Elevation chart")
-        dataSet.color = Color.GREEN
+        val dataSet = LineDataSet(entries, "Elevation")
+
+        dataSet.setDrawCircles(false)
+        dataSet.setColor(Color.DKGRAY)
+        dataSet.setLineWidth(1f)
+        dataSet.setValueTextSize(9f)
+        dataSet.setDrawFilled(true)
+        dataSet.setFormLineWidth(1f)
+        dataSet.setFormSize(15f)
         val data = LineData(dataSet)
         chartElevation.data = data
         chartElevation.invalidate()

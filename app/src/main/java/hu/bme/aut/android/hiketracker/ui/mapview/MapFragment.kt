@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import hu.bme.aut.android.hiketracker.R
 import hu.bme.aut.android.hiketracker.viewmodel.RouteViewModel
+import kotlinx.android.synthetic.main.fragment_map.*
 
 class MapFragment : Fragment() {
     private val routeViewModel: RouteViewModel by activityViewModels()
@@ -53,5 +54,9 @@ class MapFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
+
+        fabOpen.setOnClickListener{
+
+        }
     }
 }

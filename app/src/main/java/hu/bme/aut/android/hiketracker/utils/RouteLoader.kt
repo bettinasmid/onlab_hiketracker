@@ -43,7 +43,6 @@ class RouteLoader(viewModel: RouteViewModel, context: Context){
             for(trk in parsedGpx.tracks)
                 for(trkseg in trk.trackSegments)
                     points.addAll(trkseg.trackPoints.map{it -> it as Point})
-
             viewModel.savePoints(points)
         }
 
