@@ -13,6 +13,7 @@ import io.ticofab.androidgpxparser.parser.domain.TrackPoint
 import io.ticofab.androidgpxparser.parser.domain.WayPoint
 import org.xmlpull.v1.XmlPullParserException
 import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 
@@ -26,8 +27,9 @@ class RouteLoader(viewModel: RouteViewModel, context: Context){
     fun loadFile(path: String){
         var parsedGpx : Gpx? = null
         try {
-            //val instr: InputStream = File(path).inputStream()
-                val instr: InputStream = context.getResources().openRawResource(R.raw.zebegeny_remete_barlang)
+            //val instr: InputStream = FileInputStream(File(path)) 
+            //TODO implement file opening from path
+            val instr: InputStream = context.getResources().openRawResource(R.raw.zebegeny_remete_barlang)
             parsedGpx = parser.parse(instr)
         } catch (e: IOException) {
             // do something with this exception

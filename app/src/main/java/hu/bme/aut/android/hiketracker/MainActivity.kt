@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
             //TODO filepickerdialog
 
             val loader = RouteLoader(viewModel, applicationContext)
-            loader.loadFile("src/resources/zebegeny_remete_barlang.gpx")
+            loader.loadFile("\\app\\src\\resources\\zebegeny_remete_barlang.gpx")
         }
 
 
