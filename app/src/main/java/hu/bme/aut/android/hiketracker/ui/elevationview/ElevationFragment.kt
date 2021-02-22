@@ -1,7 +1,6 @@
 package hu.bme.aut.android.hiketracker.ui.elevationview
 
 import android.graphics.Color
-import android.graphics.DashPathEffect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,14 +13,14 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import hu.bme.aut.android.hiketracker.R
-import hu.bme.aut.android.hiketracker.viewmodel.RouteViewModel
+import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import io.ticofab.androidgpxparser.parser.domain.Point
 import kotlinx.android.synthetic.main.fragment_elevation.*
 
 
 class ElevationFragment : Fragment() {
 
-    private val routeViewModel: RouteViewModel by activityViewModels()
+    private val trackViewModel: TrackViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,7 +28,7 @@ class ElevationFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_elevation, container, false)
-        routeViewModel.routePoints.observe(viewLifecycleOwner, Observer { it ->
+        trackViewModel.trackPoints.observe(viewLifecycleOwner, Observer { it ->
             loadElevationData(it)
         })
         return root

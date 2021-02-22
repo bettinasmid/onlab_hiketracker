@@ -1,25 +1,18 @@
 package hu.bme.aut.android.hiketracker.utils
 
 import android.content.Context
-import android.content.res.Resources
-import android.content.res.loader.ResourcesLoader
-import com.google.android.gms.maps.model.LatLng
 import hu.bme.aut.android.hiketracker.R
-import hu.bme.aut.android.hiketracker.viewmodel.RouteViewModel
+import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import io.ticofab.androidgpxparser.parser.GPXParser
 import io.ticofab.androidgpxparser.parser.domain.Gpx
 import io.ticofab.androidgpxparser.parser.domain.Point
-import io.ticofab.androidgpxparser.parser.domain.TrackPoint
-import io.ticofab.androidgpxparser.parser.domain.WayPoint
 import org.xmlpull.v1.XmlPullParserException
-import java.io.File
-import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
 
 
-class RouteLoader(viewModel: RouteViewModel, context: Context){
-    private val viewModel : RouteViewModel = viewModel
+class TrackLoader(viewModel: TrackViewModel, context: Context){
+    private val viewModel : TrackViewModel = viewModel
     private val parser = GPXParser()
     private val context = context
 
@@ -27,7 +20,7 @@ class RouteLoader(viewModel: RouteViewModel, context: Context){
     fun loadFile(path: String){
         var parsedGpx : Gpx? = null
         try {
-            //val instr: InputStream = FileInputStream(File(path)) 
+            //val instr: InputStream = FileInputStream(File(path))
             //TODO implement file opening from path
             val instr: InputStream = context.getResources().openRawResource(R.raw.zebegeny_remete_barlang)
             parsedGpx = parser.parse(instr)
