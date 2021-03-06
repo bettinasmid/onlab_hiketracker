@@ -1,14 +1,20 @@
 package hu.bme.aut.android.hiketracker.utils
 
+import android.content.ContentResolver
 import android.content.Context
+import android.net.Uri
+import android.widget.Toast
 import hu.bme.aut.android.hiketracker.R
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import io.ticofab.androidgpxparser.parser.GPXParser
 import io.ticofab.androidgpxparser.parser.domain.Gpx
 import io.ticofab.androidgpxparser.parser.domain.Point
 import org.xmlpull.v1.XmlPullParserException
+import java.io.File
+import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
+import java.net.URI
 
 
 class TrackLoader(viewModel: TrackViewModel, context: Context){
@@ -17,13 +23,13 @@ class TrackLoader(viewModel: TrackViewModel, context: Context){
     private val context = context
 
 //TODO separate thread
-    fun loadFile(path: String){
+    fun loadFile(path: Uri?){
         var parsedGpx : Gpx? = null
         try {
-            //val instr: InputStream = FileInputStream(File(path))
-            //TODO implement file opening from path
-            val instr: InputStream = context.getResources().openRawResource(R.raw.zebegeny_remete_barlang)
-            parsedGpx = parser.parse(instr)
+            if(path != null) {
+                val instr = context.getContentResolver().openInputStream(path)
+                parsedGpx = parser.parse(instr)
+            } else throw IOException("Cannot open uri: path is null.")
         } catch (e: IOException) {
             // do something with this exception
             e.printStackTrace()
@@ -31,7 +37,8 @@ class TrackLoader(viewModel: TrackViewModel, context: Context){
             e.printStackTrace()
         }
         if (parsedGpx == null) {
-            print("error parsing gpx file")
+            Toast.makeText(context, "Chosen file is not a GPX file.",Toast.LENGTH_LONG).show()
+            return
         } else {
             //success, save points
             val points = mutableListOf<Point>()

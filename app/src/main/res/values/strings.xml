@@ -9,4 +9,7 @@
     <string name="call_permission_explanation">In order to be able to load GPX files from the phone\'s external storage, the application needs external storage access permission.</string>
     <string name="proceed">Proceed</string>
     <string name="exit">Exit</string>
+    <string name="title_activity_tabbed">TabbedActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
 </resources>

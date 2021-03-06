@@ -1,12 +1,8 @@
 package hu.bme.aut.android.hiketracker
 
-import abhishekti7.unicorn.filepicker.UnicornFilePicker
-import abhishekti7.unicorn.filepicker.utils.Constants.REQ_UNICORN_FILE
 import android.content.Intent
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
-import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -20,11 +16,12 @@ import hu.bme.aut.android.hiketracker.utils.TrackLoader
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import permissions.dispatcher.*
-import java.lang.System.exit
+import java.net.URI
 
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
 
+    val PICK_GPX_FILE = 2
     val viewModel : TrackViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,15 +40,8 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         fab.setOnClickListener {
-            //openFilePickerDialogWithPermissionCheck()
-            openMockFile() //temporary
+            openFilePickerDialog()
         }
-    }
-
-    //temporary
-    fun openMockFile() {
-        val loader = TrackLoader(viewModel, applicationContext)
-        loader.loadFile("\\app\\src\\resources\\zebegeny_remete_barlang.gpx")
     }
 
     @NeedsPermission(
@@ -59,29 +49,18 @@ class MainActivity : AppCompatActivity() {
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     )
     fun openFilePickerDialog(){
-        UnicornFilePicker.from(this)
-            .addConfigBuilder()
-            .selectMultipleFiles(false)
-            .setRootDirectory(
-                Environment.getExternalStorageDirectory().absolutePath
-            )
-            .showHiddenFiles(false)
-            .setFilters(arrayOf("gpx"))
-            .addItemDivider(true)
-            .theme(R.style.UnicornFilePicker_Default)
-            .build()
-            .forResult(REQ_UNICORN_FILE)
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply{
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "*/*"
+        }
+        startActivityForResult(intent,PICK_GPX_FILE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQ_UNICORN_FILE && resultCode == RESULT_OK) {
-            val files = data?.getStringArrayListExtra("filePaths")
-            for (file in files!!) {
-                Log.e("tag",file)
-            }
+        if (requestCode == PICK_GPX_FILE && resultCode == RESULT_OK) {
             val loader = TrackLoader(viewModel, applicationContext)
-            loader.loadFile(files[0])
+            loader.loadFile(data?.data)
         }
     }
 
