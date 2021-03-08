@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.google.android.gms.maps.*
-
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
@@ -53,6 +52,4 @@ class MapFragment : Fragment() {
             mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(mapPoints?.get(0),13.0f))
             mMap?.addMarker(MarkerOptions().position(mapPoints?.get(0)?: LatLng(45.508888,-73.561668)).title("Starting point"))
     }
-
-
 }

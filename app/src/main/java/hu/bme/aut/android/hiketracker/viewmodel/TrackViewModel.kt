@@ -7,17 +7,10 @@ import io.ticofab.androidgpxparser.parser.domain.Point
 
 class TrackViewModel : ViewModel() {
     //private val repo: PointRepository
-    var trackPoints: LiveData<List<Point>>
-
-    init{
-        trackPoints = MutableLiveData<List<Point>>()
-        //repo = PointRepository(pointDao)
-        //routePoints = repo.getAllPoints()
-    }
+    var trackPoints = MutableLiveData<List<Point>>()
 
     fun savePoints(points: List<Point>){
-        trackPoints = MutableLiveData(points)
+        trackPoints.value = points
     }
-
 
 }

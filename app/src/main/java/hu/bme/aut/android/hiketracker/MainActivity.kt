@@ -16,7 +16,7 @@ import hu.bme.aut.android.hiketracker.utils.TrackLoader
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import kotlinx.android.synthetic.main.activity_main.*
 import permissions.dispatcher.*
-import java.net.URI
+
 
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
@@ -87,4 +87,5 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         onRequestPermissionsResult(requestCode, grantResults)
     }
+
 }

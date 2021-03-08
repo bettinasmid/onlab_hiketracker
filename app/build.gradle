@@ -63,5 +63,6 @@ dependencies {
     implementation 'io.ticofab.androidgpxparser:parser:1.6.0'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation "org.permissionsdispatcher:permissionsdispatcher:4.8.0"
+    implementation 'net.danlew:android.joda:2.10.9.1'
     kapt "org.permissionsdispatcher:permissionsdispatcher-processor:4.8.0"
 }
