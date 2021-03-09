@@ -1,4 +1,4 @@
-package hu.bme.aut.android.hiketracker.ui.mapview
+package hu.bme.aut.android.hiketracker.ui.fragments
 
 import android.graphics.Color
 import androidx.fragment.app.Fragment
@@ -14,8 +14,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolylineOptions
 import hu.bme.aut.android.hiketracker.R
+import hu.bme.aut.android.hiketracker.model.Point
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
-import io.ticofab.androidgpxparser.parser.domain.Point
 
 class MapFragment : Fragment() {
     private val trackViewModel: TrackViewModel by activityViewModels()
@@ -26,7 +26,8 @@ class MapFragment : Fragment() {
         mMap = googleMap
         mapOptions = GoogleMapOptions()
         trackViewModel.trackPoints.observe(viewLifecycleOwner, Observer { it ->
-            drawPolyline(it)
+            if(it.isNotEmpty())
+                drawPolyline(it)
         })
         //mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
     }

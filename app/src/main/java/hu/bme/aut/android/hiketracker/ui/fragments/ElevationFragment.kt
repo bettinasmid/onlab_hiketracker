@@ -1,4 +1,4 @@
-package hu.bme.aut.android.hiketracker.ui.elevationview
+package hu.bme.aut.android.hiketracker.ui.fragments
 
 import android.graphics.Color
 import android.os.Bundle
@@ -13,8 +13,8 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import hu.bme.aut.android.hiketracker.R
+import hu.bme.aut.android.hiketracker.model.Point
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
-import io.ticofab.androidgpxparser.parser.domain.Point
 import kotlinx.android.synthetic.main.fragment_elevation.*
 
 

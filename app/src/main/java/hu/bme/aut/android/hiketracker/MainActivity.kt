@@ -2,7 +2,6 @@ package hu.bme.aut.android.hiketracker
 
 import android.content.Intent
 import android.os.Bundle
-import android.webkit.MimeTypeMap
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -12,6 +11,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import hu.bme.aut.android.hiketracker.service.PositionCheckerService
 import hu.bme.aut.android.hiketracker.utils.TrackLoader
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,8 +21,10 @@ import permissions.dispatcher.*
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
 
-    val PICK_GPX_FILE = 2
-    val viewModel : TrackViewModel by viewModels()
+    private val PICK_GPX_FILE = 2
+    private val viewModel : TrackViewModel by viewModels()
+    private var positionCheckerService: PositionCheckerService? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -39,9 +41,14 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        fab.setOnClickListener {
+        fabOpen.setOnClickListener {
             openFilePickerDialog()
         }
+
+        fabStart.setOnClickListener{
+            startTracking()
+        }
+
     }
 
     @NeedsPermission(
@@ -62,6 +69,11 @@ class MainActivity : AppCompatActivity() {
             val loader = TrackLoader(viewModel, applicationContext)
             loader.loadFile(data?.data)
         }
+    }
+
+    fun startTracking(){
+        val serviceIntent = Intent(this, PositionCheckerService::class.java)
+        startService(serviceIntent)
     }
 
     @OnPermissionDenied

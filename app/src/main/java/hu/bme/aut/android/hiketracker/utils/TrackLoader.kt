@@ -6,9 +6,10 @@ import android.net.Uri
 import android.widget.Toast
 import hu.bme.aut.android.hiketracker.R
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
+import hu.bme.aut.android.hiketracker.model.Point
 import io.ticofab.androidgpxparser.parser.GPXParser
 import io.ticofab.androidgpxparser.parser.domain.Gpx
-import io.ticofab.androidgpxparser.parser.domain.Point
+import io.ticofab.androidgpxparser.parser.domain.TrackPoint
 import org.xmlpull.v1.XmlPullParserException
 import java.io.File
 import java.io.FileInputStream
@@ -41,13 +42,26 @@ class TrackLoader(viewModel: TrackViewModel, context: Context){
             return
         } else {
             //success, save points
-            val points = mutableListOf<Point>()
-            for(trk in parsedGpx.tracks)
-                for(trkseg in trk.trackSegments)
-                    points.addAll(trkseg.trackPoints.map{it -> it as Point})
+            val points = mutableListOf<hu.bme.aut.android.hiketracker.model.Point>()
+            for(trk in parsedGpx.tracks) {
+                var i = 0
+                for (trkseg in trk.trackSegments) {
+                    points.addAll(trkseg.trackPoints.map { it -> it.toModelPoint(i) })
+                    i++
+                }
+            }
             viewModel.savePoints(points)
         }
 
+    }
+
+    fun TrackPoint.toModelPoint(ordinal: Int): Point{
+        return Point(
+            ordinal = ordinal,
+            latitude = this.latitude,
+            longitude = this.longitude,
+            elevation = this.elevation
+        )
     }
 
 }
