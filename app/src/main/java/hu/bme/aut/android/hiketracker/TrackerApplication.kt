@@ -18,6 +18,6 @@ class TrackerApplication : Application() {
             applicationContext,
             PointDatabase::class.java,
             "point_database"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 }

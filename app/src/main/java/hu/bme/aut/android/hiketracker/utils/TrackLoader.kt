@@ -3,6 +3,7 @@ package hu.bme.aut.android.hiketracker.utils
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import hu.bme.aut.android.hiketracker.R
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
@@ -46,8 +47,10 @@ class TrackLoader(viewModel: TrackViewModel, context: Context){
             for(trk in parsedGpx.tracks) {
                 var i = 0
                 for (trkseg in trk.trackSegments) {
-                    points.addAll(trkseg.trackPoints.map { it -> it.toModelPoint(i) })
-                    i++
+                    for(trkpoint in trkseg.trackPoints) {
+                        points.add(trkpoint.toModelPoint(i))
+                        i++
+                    }
                 }
             }
             viewModel.savePoints(points)

@@ -25,4 +25,8 @@ class TrackViewModel : ViewModel() {
         repo.insertAll(points)
     }
 
+    fun clearPoints() = viewModelScope.launch {
+        repo.deleteAllPoints()
+    }
+
 }

@@ -4,6 +4,7 @@ import android.graphics.Color
 import androidx.fragment.app.Fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,9 +26,11 @@ class MapFragment : Fragment() {
     private val callback = OnMapReadyCallback { googleMap ->
         mMap = googleMap
         mapOptions = GoogleMapOptions()
-        trackViewModel.trackPoints.observe(viewLifecycleOwner, Observer { it ->
-            if(it.isNotEmpty())
-                drawPolyline(it)
+        trackViewModel.trackPoints.observe(viewLifecycleOwner, Observer { points ->
+            if(points.isNotEmpty()) {
+                drawPolyline(points)
+
+            }
         })
         //mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
     }

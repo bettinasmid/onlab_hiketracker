@@ -28,13 +28,18 @@ class PointRepository(private val pointDao: PointDao){
         pointDao.deleteAllPoints()
     }
 
+    suspend fun markVisited(point: Point)= withContext(Dispatchers.IO){
+        pointDao.markVisited(point.id)
+    }
+
     private fun RoomPoint.toDomainModel(): Point{
         return Point(
             id = id,
             latitude = latitude,
             longitude = longitude,
             elevation = elevation,
-            ordinal = ordinal
+            ordinal = ordinal,
+            visited = visited
         )
     }
 
@@ -43,7 +48,8 @@ class PointRepository(private val pointDao: PointDao){
             latitude = latitude,
             longitude = longitude,
             elevation = elevation,
-            ordinal = ordinal
+            ordinal = ordinal,
+            visited = visited
         )
     }
 }

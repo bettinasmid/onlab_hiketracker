@@ -1,10 +1,7 @@
 package hu.bme.aut.android.hiketracker.data
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 
 
 @Dao
@@ -18,4 +15,7 @@ interface PointDao {
 
     @Query("DELETE FROM point")
     fun deleteAllPoints()
+
+    @Query("UPDATE point SET visited=1 WHERE id=:id")
+    fun markVisited(id: Long)
 }
