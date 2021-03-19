@@ -11,11 +11,11 @@ interface PointDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @JvmSuppressWildcards
-    fun insertAll(points: List<RoomPoint>)
+    suspend fun insertAll(points: List<RoomPoint>)
 
     @Query("DELETE FROM point")
-    fun deleteAllPoints()
+    suspend fun deleteAllPoints()
 
     @Query("UPDATE point SET visited=1 WHERE id=:id")
-    fun markVisited(id: Long)
+    suspend fun markVisited(id: Long)
 }

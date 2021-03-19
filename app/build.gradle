@@ -54,8 +54,12 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.3.3'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.0'
+    //Room
     implementation 'androidx.room:room-runtime:2.2.6'
     kapt "androidx.room:room-compiler:2.2.6"
+    implementation "androidx.room:room-ktx:2.2.6"
+    annotationProcessor 'androidx.room:room-compiler:2.2.6'
+    //test
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -65,11 +69,10 @@ dependencies {
     implementation 'io.ticofab.androidgpxparser:parser:1.6.0'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation 'net.danlew:android.joda:2.10.9.1'
+    //permission dispatcher
     implementation "org.permissionsdispatcher:permissionsdispatcher:4.8.0"
     kapt "org.permissionsdispatcher:permissionsdispatcher-processor:4.8.0"
-    annotationProcessor 'androidx.room:room-compiler:2.2.6'
-    //implementation "com.github.hotchemi:permissionsdispatcher:3.3.1"
-    //kapt "com.github.hotchemi:permissionsdispatcher-processor:3.3.1"
-
-
+    //coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1"
 }

@@ -20,15 +20,15 @@ class PointRepository(private val pointDao: PointDao){
         }
     }
 
-    suspend fun insertAll(points: List<Point>) = withContext(Dispatchers.IO){
+    suspend fun insertAll(points: List<Point>){
         pointDao.insertAll(points.map{point -> point.toRoomModel() })
     }
 
-    suspend fun deleteAllPoints() = withContext(Dispatchers.IO) {
+    suspend fun deleteAllPoints() {
         pointDao.deleteAllPoints()
     }
 
-    suspend fun markVisited(point: Point)= withContext(Dispatchers.IO){
+    suspend fun markVisited(point: Point){
         pointDao.markVisited(point.id)
     }
 

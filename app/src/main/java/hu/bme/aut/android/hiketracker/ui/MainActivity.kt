@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -17,6 +18,8 @@ import hu.bme.aut.android.hiketracker.service.PositionCheckerService
 import hu.bme.aut.android.hiketracker.utils.TrackLoader
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import permissions.dispatcher.*
 
 
@@ -45,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        fabOpen.setOnClickListener {
+        btnOpen.setOnClickListener {
             openFilePickerDialog()
         }
 
@@ -64,6 +67,8 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
 
+        fabStart.isEnabled = false
+
     }
 
     fun openFilePickerDialog(){
@@ -79,14 +84,17 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_GPX_FILE && resultCode == RESULT_OK) {
             val loader = TrackLoader(viewModel, applicationContext)
-            loader.loadFile(data?.data)
+            lifecycleScope.launch {
+                loader.loadFile(data?.data)
+            }
         }
+        fabStart.isEnabled = true
     }
 
     @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     fun startTracking(){
         trackingOn = true
-        fabOpen.isEnabled = false
+        btnOpen.isEnabled = false
         fabStart.setImageResource(R.drawable.ic_action_stop)
         serviceIntent = Intent(this, PositionCheckerService::class.java)
         startService(serviceIntent)
@@ -94,7 +102,7 @@ class MainActivity : AppCompatActivity() {
 
     fun stopTracking(){
         trackingOn = false
-        fabOpen.isEnabled = true
+        btnOpen.isEnabled = true
         fabStart.setImageResource(android.R.drawable.ic_media_play)
         stopService(serviceIntent)
     }
@@ -112,5 +120,5 @@ class MainActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         onRequestPermissionsResult(requestCode, grantResults)
     }
-    
+
 }
