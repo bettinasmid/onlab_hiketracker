@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import hu.bme.aut.android.hiketracker.R
+import hu.bme.aut.android.hiketracker.TrackerApplication
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import hu.bme.aut.android.hiketracker.model.Point
 import io.ticofab.androidgpxparser.parser.GPXParser
@@ -25,12 +26,12 @@ class TrackLoader(viewModel: TrackViewModel, context: Context){
     private val parser = GPXParser()
     private val context = context
 
-    suspend fun loadFile(path: Uri?){
+   /*suspend */fun loadFile(path: Uri?){
         var parsedGpx : Gpx? = null
-        withContext(Dispatchers.IO){
+      //  withContext(Dispatchers.IO){
             try {
                 if(path != null) {
-                    val instr = context.getContentResolver().openInputStream(path)
+                    val instr = context.contentResolver.openInputStream(path)
                     parsedGpx = parser.parse(instr)
                 } else throw IOException("Cannot open uri: path is null.")
             } catch (e: IOException) {
@@ -39,14 +40,14 @@ class TrackLoader(viewModel: TrackViewModel, context: Context){
             } catch (e: XmlPullParserException) {
                 e.printStackTrace()
             }
-        }
+      //  }
         if (parsedGpx == null) {
             Toast.makeText(context, "Chosen file is not a GPX file.",Toast.LENGTH_LONG).show()
             return
         } else {
             //success, save points
             val points = mutableListOf<hu.bme.aut.android.hiketracker.model.Point>()
-            withContext(Dispatchers.IO) {
+       //     withContext(Dispatchers.IO) {
                 for (trk in parsedGpx!!.tracks) {
                     var i = 0
                     for (trkseg in trk.trackSegments) {
@@ -56,7 +57,7 @@ class TrackLoader(viewModel: TrackViewModel, context: Context){
                         }
                     }
                 }
-            }
+           // }
             //already on background thread via Room
             viewModel.savePoints(points)
         }

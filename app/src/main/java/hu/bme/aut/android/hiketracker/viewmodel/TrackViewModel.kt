@@ -15,7 +15,7 @@ import kotlinx.coroutines.withContext
 
 class TrackViewModel : ViewModel() {
     private val repo: PointRepository
-    lateinit var trackPoints : LiveData<List<Point>>
+    var trackPoints : LiveData<List<Point>>
 
     init{
         val pointDao = TrackerApplication.pointDatabase.pointDao()

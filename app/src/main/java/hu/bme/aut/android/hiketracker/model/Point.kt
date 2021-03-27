@@ -23,11 +23,40 @@ class Point(
         }
     }
 
-/*    fun Location.toPoint(): Point{
-        return Point(
-            latitude = this.latitude,
-            longitude = this.longitude,
-            elevation = this.altitude)
-
-    }*/
+//    //returns a direction vector pointing from this to the other point
+//    //calculating as though cartesian coordinates
+//    fun minus(other: Point) : Point{
+//        return Point(
+//            id = -1,
+//            ordinal = -1,
+//            visited = false,
+//            latitude = other.latitude - this.latitude,
+//            longitude = other.longitude - this.longitude,
+//            elevation = -1.0
+//        )
+//    }
+//
+//    //returns actual point
+//    fun plus(other: Point) : Point{
+//        return Point(
+//            id = -1,
+//            ordinal = -1,
+//            visited = false,
+//            latitude = other.latitude + this.latitude,
+//            longitude = other.longitude + this.longitude,
+//            elevation = -1.0
+//        )
+//    }
+//
+//    //used for vector normalization
+//    fun times(scalar : Float): Point{
+//        return Point(
+//            id = -1,
+//            ordinal = -1,
+//            visited = false,
+//            latitude = latitude * scalar,
+//            longitude = longitude * scalar,
+//            elevation = -1.0
+//        )
+//    }
 }

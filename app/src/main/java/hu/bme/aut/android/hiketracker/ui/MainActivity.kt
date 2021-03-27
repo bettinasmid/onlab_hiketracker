@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import permissions.dispatcher.*
+import kotlin.system.exitProcess
 
 
 @RuntimePermissions
@@ -65,6 +66,7 @@ class MainActivity : AppCompatActivity() {
                 stopTracking()
             viewModel.clearPoints()
             finish()
+            exitProcess(0)
         }
 
         fabStart.isEnabled = false
@@ -87,8 +89,8 @@ class MainActivity : AppCompatActivity() {
             lifecycleScope.launch {
                 loader.loadFile(data?.data)
             }
+            fabStart.isEnabled = true
         }
-        fabStart.isEnabled = true
     }
 
     @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
