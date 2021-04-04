@@ -1,8 +1,7 @@
 package hu.bme.aut.android.hiketracker.service
 
 import android.location.Location
-import hu.bme.aut.android.hiketracker.model.Point
-import java.lang.Math.sqrt
+
 //Location coordinates treated as cartesian coordinates
 //returns a direction vector pointing from this to the other point
 //calculating as though cartesian coordinates
@@ -52,7 +51,7 @@ fun Location.length(): Double{
 }
 
 fun Location.matches(other: Any?): Boolean{
-    return this.distanceTo(other as Location) < 20.0
+    return this.distanceTo(other as Location) < PositionCheckerService.LOCATION_EQUALITY_TOLERANCE_METERS
 }
 
 fun Location.toVectorString(): String{

@@ -1,8 +1,14 @@
 package hu.bme.aut.android.hiketracker.ui
 
 import android.Manifest
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Bundle
+import android.os.IBinder
+import android.util.Log
+import android.util.Log.*
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -14,6 +20,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import hu.bme.aut.android.hiketracker.R
+import hu.bme.aut.android.hiketracker.TrackerApplication.Companion.logger
 import hu.bme.aut.android.hiketracker.service.PositionCheckerService
 import hu.bme.aut.android.hiketracker.utils.TrackLoader
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
@@ -26,15 +33,42 @@ import kotlin.system.exitProcess
 
 @RuntimePermissions
 class MainActivity : AppCompatActivity() {
+    companion object{
+        val PICK_GPX_FILE = 2
+        val STATE_TRACKING_ON = "trackingOn"
+        val STATE_FAB_ENABLED = "fabEnabled"
+        val STATE_IS_BOUND = "isBound"
+    }
 
-    private val PICK_GPX_FILE = 2
     private val viewModel : TrackViewModel by viewModels()
-    private var positionCheckerService: PositionCheckerService? = null
-    private var trackingOn = false
+    private lateinit var positionCheckerService: PositionCheckerService
     private var serviceIntent: Intent? = null
+    private var trackingOn = false
+    private var isBound = false
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
+            val binder = service as PositionCheckerService.PositionCheckerServiceBinder
+            positionCheckerService = binder.getService()
+            isBound = true
+            if(positionCheckerService.enabled) {
+                trackingOn = true
+                fabStart.setImageResource(R.drawable.ic_action_stop)
+                fabStart.isEnabled = true
+            }
+            logger.log("MainActivity: service connected")
+        }
+
+        override fun onServiceDisconnected(p0: ComponentName?) {
+            isBound = false
+            logger.log("MainActivity: service disconnected")
+
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        logger.log("MainActivity onCreate called")
+        d("nyuszi","MainActivity onCreate called")
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
@@ -49,6 +83,15 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        //restore state
+        if(savedInstanceState != null) {
+            if (savedInstanceState.getBoolean(STATE_TRACKING_ON)) {
+                fabStart.setImageResource(R.drawable.ic_action_stop)
+                trackingOn = true
+            }
+            isBound = savedInstanceState.getBoolean(STATE_IS_BOUND)
+        }
+
         btnOpen.setOnClickListener {
             openFilePickerDialog()
         }
@@ -62,16 +105,47 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnOff.setOnClickListener{
-            if(trackingOn)
-                stopTracking()
+            stopTracking()
             viewModel.clearPoints()
             finish()
             exitProcess(0)
         }
 
-        fabStart.isEnabled = false
-
+        fabStart.isEnabled = trackingOn //false if newly created, but if already running, it has to be enabled
     }
+
+//    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+//        super.onRestoreInstanceState(savedInstanceState)
+//        logger.log("MainActivity onRestoreInstanceState called")
+//        fabStart.isEnabled = savedInstanceState.getBoolean(
+//            STATE_FAB_ENABLED)
+//
+//    }
+
+    override fun onStart() {
+        super.onStart()
+        logger.log("MainActivity onStart called")
+        d("nyuszi","MainActivity onStart called")
+        logger.log("\t$STATE_TRACKING_ON : $trackingOn")
+        logger.log("\t$STATE_FAB_ENABLED : ${fabStart.isEnabled}")
+        logger.log("\t$STATE_IS_BOUND : $isBound")
+        if(trackingOn) {
+            logger.log("\tcalling bindService")
+            serviceIntent = Intent(this, PositionCheckerService::class.java)
+            bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
+            logger.log("\tService is enabled: ${positionCheckerService.enabled}")
+        }
+    }
+
+    override fun onStop(){
+        super.onStop()
+        if(isBound){
+            unbindService(serviceConnection)
+        }
+        logger.log("MainActivity.onStop called")
+        d("nyuszi","MainActivity onStop called")
+    }
+
 
     fun openFilePickerDialog(){
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply{
@@ -100,13 +174,18 @@ class MainActivity : AppCompatActivity() {
         fabStart.setImageResource(R.drawable.ic_action_stop)
         serviceIntent = Intent(this, PositionCheckerService::class.java)
         startService(serviceIntent)
+        bindService(serviceIntent, serviceConnection, Context.BIND_IMPORTANT)
     }
 
     fun stopTracking(){
-        trackingOn = false
-        btnOpen.isEnabled = true
-        fabStart.setImageResource(android.R.drawable.ic_media_play)
-        stopService(serviceIntent)
+        if(trackingOn) {
+            trackingOn = false
+            btnOpen.isEnabled = true
+            fabStart.setImageResource(android.R.drawable.ic_media_play)
+            if(isBound)
+                unbindService(serviceConnection)
+            stopService(serviceIntent)
+        }
     }
 
     @OnPermissionDenied(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -123,4 +202,21 @@ class MainActivity : AppCompatActivity() {
         onRequestPermissionsResult(requestCode, grantResults)
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.run {
+            putBoolean(STATE_TRACKING_ON, trackingOn)
+            putBoolean(STATE_FAB_ENABLED, fabStart.isEnabled)
+            putBoolean(STATE_IS_BOUND, isBound)
+        }
+        super.onSaveInstanceState(outState)
+        logger.log("MainActivity onSaveInstanceState called")
+        logger.log("\t$STATE_TRACKING_ON : $trackingOn")
+        logger.log("\t$STATE_FAB_ENABLED : ${fabStart.isEnabled}")
+        logger.log("\t$STATE_IS_BOUND : $isBound")
+    }
+
+    override fun onDestroy() {
+        logger.log("MainActivity onDestroy called")
+        super.onDestroy()
+    }
 }

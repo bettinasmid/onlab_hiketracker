@@ -12,11 +12,12 @@ import java.time.LocalDateTime
 class Logger ( val context : Context){
     private val TAG = "MEDIA"
     private var tv : String = ""
-    private var messages = mutableListOf<String>()
+    private var message = "====================================" + LocalDateTime.now().toString() + "===================================="
     var enabled = true
 
     init{
         checkExternalMedia()
+        writeToSDFile()
     }
 
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -52,12 +53,11 @@ class Logger ( val context : Context){
         // See http://stackoverflow.com/questions/3551821/android-write-to-sd-card-folder
         val dir = File(root!!.absolutePath.toString() + "/hikrdebug")
         dir.mkdirs()
-        val file = File(dir, "hikrrunlog_${LocalDateTime.now()}.txt")
+        val file = File(dir, "hikrrunlog.txt")
         try {
-            val f = FileOutputStream(file)
+            val f = FileOutputStream(file, true)
             val pw = PrintWriter(f)
-            for(m in messages)
-                pw.println(m)
+            pw.println(message)
             pw.flush()
             pw.close()
             f.close()
@@ -72,7 +72,9 @@ class Logger ( val context : Context){
         Log.d("devlog", tv)
     }
 
-    fun log(message: String){
-        messages.add(message)
+    fun log(m: String){
+        if(enabled)
+            message = m
+        writeToSDFile()
     }
 }
