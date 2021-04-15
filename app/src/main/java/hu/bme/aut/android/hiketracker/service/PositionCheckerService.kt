@@ -1,6 +1,7 @@
 package hu.bme.aut.android.hiketracker.service
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.location.Location
 import android.media.MediaPlayer
 import android.os.Binder
@@ -12,6 +13,7 @@ import android.widget.Toast
 import androidx.lifecycle.*
 import hu.bme.aut.android.hiketracker.R
 import hu.bme.aut.android.hiketracker.TrackerApplication
+import hu.bme.aut.android.hiketracker.TrackerApplication.Companion.TAG_TOTAL_DISTANCE
 import hu.bme.aut.android.hiketracker.TrackerApplication.Companion.logger
 import hu.bme.aut.android.hiketracker.model.Point
 import hu.bme.aut.android.hiketracker.repository.PointRepository
@@ -27,8 +29,15 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
     //utilities
     private lateinit var notificationHandler : NotificationHandler
     private val serviceScope = CoroutineScope(Dispatchers.Default)
-    private lateinit var mediaPlayer :  MediaPlayer
+    private val mediaPlayer = MediaPlayer().apply {
+        setOnPreparedListener { start() }
+        setOnCompletionListener { reset() }
+    }
+
+    //communication with other components
     val handler = Handler(Looper.getMainLooper())
+    private lateinit var sp : SharedPreferences
+    public lateinit var onViewUpdateNeededListener: OnViewUpdateNeededListener
 
     private lateinit var repo: PointRepository
     private lateinit var locationProvider: LocationProvider
@@ -54,7 +63,7 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
     private var currentSegment = mutableListOf<Location>()
     private var userLost : Boolean = false
     private  var t : Int = 0 //track segment partitioning factor
-
+    private var totalDistance : Float = 0.0F
     private val binder : IBinder = PositionCheckerServiceBinder()
 
     override fun onCreate() {
@@ -69,6 +78,7 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
         )
         repo = PointRepository(pointDao)
         trackPoints = repo.getAllPoints()
+        sp = getSharedPreferences(TrackerApplication.SHARED_PREFERENCES_NAME, MODE_PRIVATE)
     }
 
     override fun onBind(p0: Intent): IBinder? {
@@ -85,12 +95,7 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
         startForeground(NOTIF_FOREGROUND_ID, notificationHandler.createNotification("Return to app"))
-        mediaPlayer = MediaPlayer().apply {
-            setOnPreparedListener {
-                start()
-            }
-            setOnCompletionListener { reset() }
-        }
+
             //TODO on new thread
         trackPoints.observe(this, Observer {
             logger.log("Observer triggered")
@@ -110,6 +115,10 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
         })
 
         return START_STICKY
+    }
+
+    interface OnViewUpdateNeededListener{
+        fun onViewUpdateNeeded(location: Location)
     }
 
     private fun convertTrackPointsToLocation(points: List<Point>){
@@ -138,6 +147,8 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
                     "bearing:${location.bearing}\t" +
                     "speed:${location.speed}")
          //   serviceScope.launch {
+                updateTotalDistance(location)
+                onViewUpdateNeededListener.onViewUpdateNeeded(location)
                 //check if user visited a new point along the track, mark it visited
                 searchCurrentLocationOnTrack(location)
                 //notify user if heading in the wrong direction
@@ -145,9 +156,15 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
           //  }
         }
         notifyUser("test notification")
-
     }
 
+    private fun updateTotalDistance(location: Location){
+        totalDistance += location.distanceTo(lastCorrectLocation)
+        val editor : SharedPreferences.Editor = sp.edit()
+        editor.putFloat(TAG_TOTAL_DISTANCE, totalDistance)
+        logger.log("\ttotal distance = ${totalDistance} meters")
+        editor.apply()
+    }
     //input: the internal points of the current segment
     //decide if user is on track or at least heading back to the track.
     //if not, notify them
@@ -250,19 +267,19 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
 
     //TODO investigate why prepare is failing
     private fun notifyUser(message: String){
-        lifecycleScope.launch {
+        //lifecycleScope.launch {
+        val sound = resources.openRawResourceFd(R.raw.beep) ?: return
+        try {
             mediaPlayer.run{
                 reset()
-                val soundFD = resources.openRawResourceFd(R.raw.beep).fileDescriptor
-                try {
-                    mediaPlayer.setDataSource(soundFD)
-                    prepare()
-                } catch(e: Exception){
-                    Log.e("mediaplayer","Error: " + Log.getStackTraceString(e))
-                }
+                setDataSource(sound.fileDescriptor)
+                prepare()
             }
-            logger.log("\tuser notified")
+        } catch(e: Exception){
+            Log.e("mediaplayer","Error: " + Log.getStackTraceString(e))
         }
+            logger.log("\tuser notified")
+        //}
        // handler.post{
          //   Runnable(){
                 Toast.makeText(this, message, Toast.LENGTH_LONG).show()
@@ -280,7 +297,6 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
         return false
     }
 
-
     override fun onDestroy(){
         stopForeground(true)
         mediaPlayer.release()
@@ -290,6 +306,7 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
         super.onDestroy()
     }
 
+    //currently not used, but kept just in case
     private  fun checkDirectionBasedOnBearing(location: Location){
         //receive visited point
         //find the last visited point and the next one in the list
