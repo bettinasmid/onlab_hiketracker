@@ -108,7 +108,6 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
                         lastCorrectLocation = locationPoints[0]
                         updateCurrentSegment()
                   //  }
-                    startLocationMonitoring()
                 }
             }
             logger.log("\tcontent is null: ${it==null}")
@@ -147,7 +146,6 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
                     "bearing:${location.bearing}\t" +
                     "speed:${location.speed}")
          //   serviceScope.launch {
-                updateTotalDistance(location)
                 onViewUpdateNeededListener.onViewUpdateNeeded(location)
                 //check if user visited a new point along the track, mark it visited
                 searchCurrentLocationOnTrack(location)
@@ -155,16 +153,8 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
                 checkPosition(location)
           //  }
         }
-        notifyUser("test notification")
     }
 
-    private fun updateTotalDistance(location: Location){
-        totalDistance += location.distanceTo(lastCorrectLocation)
-        val editor : SharedPreferences.Editor = sp.edit()
-        editor.putFloat(TAG_TOTAL_DISTANCE, totalDistance)
-        logger.log("\ttotal distance = ${totalDistance} meters")
-        editor.apply()
-    }
     //input: the internal points of the current segment
     //decide if user is on track or at least heading back to the track.
     //if not, notify them
@@ -229,12 +219,18 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
             if(userLost) //switch lost mode off if they reached a valid trackpoint again
                 userLost = false
             if(lastVisitedIndex != idxOfCheckPoint) { //reached checkpoint is not already visited
+                if(lastVisitedIndex>-1) {
+                    totalDistance += location.distanceTo(locationPoints[lastVisitedIndex])
+                    val editor = sp.edit()
+                    editor.putFloat(TAG_TOTAL_DISTANCE, totalDistance)
+                    editor.apply()
+                }
                 lastVisitedIndex = idxOfCheckPoint
                 updateCurrentSegment(idxOfCheckPoint)
                 serviceScope.launch{
                     repo.markVisited(trackPoints.value!![lastVisitedIndex])
                 }
-                logger.log("\tcheckpoint $lastVisitedIndex reached")
+                logger.log("\tcheckpoint $lastVisitedIndex reached, total distance: $totalDistance meters")
                 Toast.makeText(this, "checkpoint: $lastVisitedIndex", Toast.LENGTH_SHORT).show()
             }
             lastCorrectLocation = location //either way, location is on track
@@ -266,9 +262,10 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
     }
 
     //TODO investigate why prepare is failing
+    //sound from zapsplat.com
     private fun notifyUser(message: String){
         //lifecycleScope.launch {
-        val sound = resources.openRawResourceFd(R.raw.beep) ?: return
+        val sound = resources.openRawResourceFd(R.raw.notif) ?: return
         try {
             mediaPlayer.run{
                 reset()
@@ -287,7 +284,7 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
        // }
     }
 
-    private fun startLocationMonitoring(){
+    public fun startLocationMonitoring(){
         locationProvider.startLocationMonitoring()
     }
 

@@ -22,6 +22,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import hu.bme.aut.android.hiketracker.R
 import hu.bme.aut.android.hiketracker.TrackerApplication.Companion.logger
 import hu.bme.aut.android.hiketracker.service.PositionCheckerService
+import hu.bme.aut.android.hiketracker.ui.fragments.MapFragment
 import hu.bme.aut.android.hiketracker.utils.TrackLoader
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -45,10 +46,14 @@ class MainActivity : AppCompatActivity() {
     private var serviceIntent: Intent? = null
     private var trackingOn = false
     private var isBound = false
+    private lateinit var mapFragment: MapFragment
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
             val binder = service as PositionCheckerService.PositionCheckerServiceBinder
             positionCheckerService = binder.getService()
+            logger.log("\tService is enabled: ${positionCheckerService.enabled}")
+            positionCheckerService.onViewUpdateNeededListener = mapFragment
+            positionCheckerService.startLocationMonitoring()
             isBound = true
             if(positionCheckerService.enabled) {
                 trackingOn = true
@@ -68,11 +73,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         logger.log("MainActivity onCreate called")
-        d("nyuszi","MainActivity onCreate called")
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         val navController = findNavController(R.id.nav_host_fragment)
+        val fragManager = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+        val fragments = fragManager?.childFragmentManager?.fragments
+        mapFragment = if(fragments?.get(0) is MapFragment) fragments?.get(0) as MapFragment else fragments?.get(1) as MapFragment
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         val appBarConfiguration = AppBarConfiguration(
@@ -133,7 +140,6 @@ class MainActivity : AppCompatActivity() {
             logger.log("\tcalling bindService")
             serviceIntent = Intent(this, PositionCheckerService::class.java)
             bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE)
-            logger.log("\tService is enabled: ${positionCheckerService.enabled}")
         }
     }
 
@@ -175,6 +181,7 @@ class MainActivity : AppCompatActivity() {
         serviceIntent = Intent(this, PositionCheckerService::class.java)
         startService(serviceIntent)
         bindService(serviceIntent, serviceConnection, Context.BIND_IMPORTANT)
+
     }
 
     fun stopTracking(){
