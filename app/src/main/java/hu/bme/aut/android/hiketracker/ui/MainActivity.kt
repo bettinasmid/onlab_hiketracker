@@ -104,11 +104,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         fabStart.setOnClickListener{
-           if(!trackingOn){
-               startTrackingWithPermissionCheck()
-           } else{
-               stopTracking()
-           }
+            if(fabStart.isEnabled) {
+                if (!trackingOn) {
+                    startTrackingWithPermissionCheck()
+                } else {
+                    stopTracking()
+                }
+            } else {
+                Toast.makeText(this, "Load a track first!", Toast.LENGTH_LONG).show()
+            }
         }
 
         btnOff.setOnClickListener{
@@ -189,8 +193,10 @@ class MainActivity : AppCompatActivity() {
             trackingOn = false
             btnOpen.isEnabled = true
             fabStart.setImageResource(android.R.drawable.ic_media_play)
-            if(isBound)
+            if(isBound) {
+                positionCheckerService.stopLocationMonitoring()
                 unbindService(serviceConnection)
+            }
             stopService(serviceIntent)
         }
     }

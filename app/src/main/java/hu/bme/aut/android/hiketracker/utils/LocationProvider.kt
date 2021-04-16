@@ -25,8 +25,8 @@ class LocationProvider (context: Context, private val onNewLocationAvailable: On
     @Throws(SecurityException::class)
     fun startLocationMonitoring() {
         val locationRequest = LocationRequest.create()
-        locationRequest.interval = 20000
-        locationRequest.fastestInterval = 10000
+        locationRequest.interval = 5000
+        locationRequest.fastestInterval = 3000
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
 
         fusedLocationClient.requestLocationUpdates(locationRequest,

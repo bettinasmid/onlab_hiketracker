@@ -58,8 +58,10 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
         const val LOCATION_EQUALITY_TOLERANCE_METERS : Float = 8.0F
     }
     //location monitoring variables
+    private var started : Boolean = false
     private var lastVisitedIndex: Int = -1
     private lateinit var lastCorrectLocation: Location
+    private lateinit var lastLocation: Location
     private var currentSegment = mutableListOf<Location>()
     private var userLost : Boolean = false
     private  var t : Int = 0 //track segment partitioning factor
@@ -140,12 +142,22 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
     }
 
     override fun onNewLocation(location: Location) {
+        if(!started) {
+            lastLocation = location
+            started = true
+        }
         if(locationIsValid(location)) {
           //  Toast.makeText(this, "${location.latitude},${location.longitude},\nbearing:${location.bearing}\nspeed:${location.speed}", Toast.LENGTH_SHORT).show()
             logger.log("onNewLocation: (${location.latitude},${location.longitude})\t" +
                     "bearing:${location.bearing}\t" +
                     "speed:${location.speed}")
          //   serviceScope.launch {
+                //accumulate distance at every update
+                totalDistance += location.distanceTo(lastLocation)
+                lastLocation = location
+                val editor = sp.edit()
+                editor.putFloat(TAG_TOTAL_DISTANCE, totalDistance)
+                editor.apply()
                 onViewUpdateNeededListener.onViewUpdateNeeded(location)
                 //check if user visited a new point along the track, mark it visited
                 searchCurrentLocationOnTrack(location)
@@ -188,6 +200,7 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
             logger.log("\tuser is close enough to tracksegment: ${userCloseToTrack}")
             if(userCloseToTrack){ //still on track
                 lastCorrectLocation = location
+                lastLocation = location
                 if(userLost) {
                     userLost = false
                     logger.log("\tswitched off lost mode")
@@ -218,13 +231,7 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
             }
             if(userLost) //switch lost mode off if they reached a valid trackpoint again
                 userLost = false
-            if(lastVisitedIndex != idxOfCheckPoint) { //reached checkpoint is not already visited
-                if(lastVisitedIndex>-1) {
-                    totalDistance += location.distanceTo(locationPoints[lastVisitedIndex])
-                    val editor = sp.edit()
-                    editor.putFloat(TAG_TOTAL_DISTANCE, totalDistance)
-                    editor.apply()
-                }
+            if(lastVisitedIndex != idxOfCheckPoint) { //reached checkpoint that is not already visited
                 lastVisitedIndex = idxOfCheckPoint
                 updateCurrentSegment(idxOfCheckPoint)
                 serviceScope.launch{
@@ -288,9 +295,16 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
         locationProvider.startLocationMonitoring()
     }
 
+    public fun stopLocationMonitoring(){
+        locationProvider.stopLocationMonitoring()
+        val editor = sp.edit()
+        editor.clear()
+        editor.apply()
+    }
+
     private fun locationIsValid(location: Location): Boolean{
-        if((location.hasSpeed() && location.speed < MAX_ALLOWABLE_SPEED_MPS && location.speed> MIN_ALLOWABLE_SPEED_MPS) || lastCorrectLocation==null) return true
-        if(location.distanceTo(lastCorrectLocation)< LOCATION_UPDATE_CORRECTNESS_TOLERANCE) return true
+        if((location.hasSpeed() && location.speed < MAX_ALLOWABLE_SPEED_MPS && location.speed> MIN_ALLOWABLE_SPEED_MPS)) return true
+        if(location.distanceTo(lastLocation)< LOCATION_UPDATE_CORRECTNESS_TOLERANCE) return true
         return false
     }
 
@@ -298,7 +312,10 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
         stopForeground(true)
         mediaPlayer.release()
         enabled = false
-        locationProvider.stopLocationMonitoring()
+        stopLocationMonitoring()
+//        lifecycleScope.launch {
+//            repo.deleteAllPoints()
+//        }
         logger.log("Service onDestroy called")
         super.onDestroy()
     }

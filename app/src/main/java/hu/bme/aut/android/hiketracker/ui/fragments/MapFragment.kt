@@ -26,6 +26,7 @@ import hu.bme.aut.android.hiketracker.model.Point
 import hu.bme.aut.android.hiketracker.service.PositionCheckerService
 import hu.bme.aut.android.hiketracker.viewmodel.TrackViewModel
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_map.*
 import permissions.dispatcher.NeedsPermission
 import permissions.dispatcher.RuntimePermissions
 
@@ -36,7 +37,7 @@ class MapFragment : Fragment(), PositionCheckerService.OnViewUpdateNeededListene
     private lateinit var mMap: GoogleMap
     private lateinit var sp : SharedPreferences
     private var currentZoom : Float = 14.0f
-    private lateinit var currentPosition: LatLng
+    private var currentPosition: LatLng? = null
 
     val callback = OnMapReadyCallback { googleMap ->
         onMapReady(googleMap)
@@ -62,7 +63,12 @@ class MapFragment : Fragment(), PositionCheckerService.OnViewUpdateNeededListene
                 drawPolyline(points)
             }
         })
-        //mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+        swSatellite.setOnCheckedChangeListener{ _, isChecked ->
+            if(isChecked)
+                mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            else
+                mMap.mapType = GoogleMap.MAP_TYPE_TERRAIN
+        }
     }
 
     override fun onCreateView(
@@ -88,12 +94,14 @@ class MapFragment : Fragment(), PositionCheckerService.OnViewUpdateNeededListene
                     mapPoints
                 )
             )
-            currentPosition = mapPoints?.get(0)
-            mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, currentZoom))
             mMap?.addMarker(MarkerOptions().apply {
                 position(mapPoints?.get(0) ?: LatLng(45.508888, -73.561668))
                 title("Starting point")
             })
+            if(currentPosition == null)
+                currentPosition = mapPoints?.get(0)
+            mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, currentZoom))
+
     }
 
     //source: https://www.zoftino.com/android-show-current-location-on-map-example
@@ -103,7 +111,11 @@ class MapFragment : Fragment(), PositionCheckerService.OnViewUpdateNeededListene
     }
 
     override fun onViewUpdateNeeded(location: Location) {
-        mMap?.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition(LatLng(location.latitude, location.longitude), currentZoom, 0.0f, location.bearing)))
-        requireActivity().tvDistance.text = "Distance: " + "%.2f".format(sp.getFloat(TAG_TOTAL_DISTANCE, 0.0F)/1000) + " km"
+        currentPosition = LatLng(location.latitude,
+            location.longitude)
+        mMap?.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition(currentPosition, currentZoom, 0.0f, location.bearing)))
+        requireActivity().tvDistance.text = "Distance: " + "%.2f".format(sp.getFloat(
+            TAG_TOTAL_DISTANCE,
+            0.0F) / 1000) + " km"
     }
 }
