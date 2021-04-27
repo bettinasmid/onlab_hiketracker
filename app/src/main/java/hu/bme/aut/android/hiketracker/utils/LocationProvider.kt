@@ -5,7 +5,6 @@ import android.location.Location
 import android.os.Looper
 import com.google.android.gms.location.*
 
-//source: Android alapu szoftverfejlesztes ea demo
 class LocationProvider (context: Context, private val onNewLocationAvailable: OnNewLocationAvailable)  {
 
     private val fusedLocationClient: FusedLocationProviderClient =

@@ -11,10 +11,9 @@ class TrackerApplication : Application() {
     companion object {
         lateinit var pointDatabase: PointDatabase
             private set
-        lateinit var logger: Logger
-        val SHARED_PREFERENCES_NAME = "appPrefs"
-        val TAG_NOT_LOADED = "not_loaded"
-        val TAG_TOTAL_DISTANCE = "total_distance"
+        lateinit var logger: Logger //TODO
+        const val SHARED_PREFERENCES_NAME = "appPrefs"
+        const val TAG_TOTAL_DISTANCE = "total_distance"
     }
 
     override fun onCreate() {

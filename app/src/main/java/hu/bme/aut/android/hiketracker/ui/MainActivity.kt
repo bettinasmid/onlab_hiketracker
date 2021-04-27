@@ -125,14 +125,6 @@ class MainActivity : AppCompatActivity() {
         fabStart.isEnabled = trackingOn //false if newly created, but if already running, it has to be enabled
     }
 
-//    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-//        super.onRestoreInstanceState(savedInstanceState)
-//        logger.log("MainActivity onRestoreInstanceState called")
-//        fabStart.isEnabled = savedInstanceState.getBoolean(
-//            STATE_FAB_ENABLED)
-//
-//    }
-
     override fun onStart() {
         super.onStart()
         logger.log("MainActivity onStart called")
@@ -157,7 +149,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun openFilePickerDialog(){
+    private fun openFilePickerDialog(){
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply{
             addCategory(Intent.CATEGORY_OPENABLE)
             putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)

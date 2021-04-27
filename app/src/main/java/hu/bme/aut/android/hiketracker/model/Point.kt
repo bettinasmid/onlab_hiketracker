@@ -23,6 +23,8 @@ class Point(
         }
     }
 
+//     This logic was refactored to be carried out using Locations
+//
 //    //returns a direction vector pointing from this to the other point
 //    //calculating as though cartesian coordinates
 //    fun minus(other: Point) : Point{

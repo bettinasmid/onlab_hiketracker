@@ -320,39 +320,40 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
         super.onDestroy()
     }
 
-    //currently not used, but kept just in case
-    private  fun checkDirectionBasedOnBearing(location: Location){
-        //receive visited point
-        //find the last visited point and the next one in the list
-        //compare the bearing of the route between them with the current location's bearing
-        //should be aligned if user is heading in the right direction
+//Currently not used, but kept in case of future refinement of the tracking algorithm
 
-        fun compareBearings(b1 : Float, b2: Float): Boolean{
-            return (b1-b2) < BEARING_DISCREPANCY_TOLERANCE_DEGREES || (b1-b2) > 360 - BEARING_DISCREPANCY_TOLERANCE_DEGREES
-        }
-
-        if(location.hasBearing() && location.speed>0.1F) {
-            if(userLost){
-                //we want them to head a) back to the point they left the track b) towards one of the few next points on track
-                var directionOk = false
-                if(compareBearings(location.bearing, location.bearingTo(lastCorrectLocation))) // a)
-                    directionOk = true
-
-                for(i in max(lastVisitedIndex,0)..lastVisitedIndex+2) // b)
-                    if(compareBearings(location.bearing, location.bearingTo(locationPoints[i])))
-                        directionOk = true
-                if(!directionOk)
-                    notifyUser("Wrong direction!")
-            }
-            else{
-                if(compareBearings(location.bearing, location.bearingTo(locationPoints[lastVisitedIndex+1]))){
-                    lastCorrectLocation = location
-                    return
-                }
-                notifyUser("Wrong direction!")
-                userLost = true
-            }
-        }
-    }
+//    private  fun checkDirectionBasedOnBearing(location: Location){
+//        //receive visited point
+//        //find the last visited point and the next one in the list
+//        //compare the bearing of the route between them with the current location's bearing
+//        //should be aligned if user is heading in the right direction
+//
+//        fun compareBearings(b1 : Float, b2: Float): Boolean{
+//            return (b1-b2) < BEARING_DISCREPANCY_TOLERANCE_DEGREES || (b1-b2) > 360 - BEARING_DISCREPANCY_TOLERANCE_DEGREES
+//        }
+//
+//        if(location.hasBearing() && location.speed>0.1F) {
+//            if(userLost){
+//                //we want them to head a) back to the point they left the track b) towards one of the few next points on track
+//                var directionOk = false
+//                if(compareBearings(location.bearing, location.bearingTo(lastCorrectLocation))) // a)
+//                    directionOk = true
+//
+//                for(i in max(lastVisitedIndex,0)..lastVisitedIndex+2) // b)
+//                    if(compareBearings(location.bearing, location.bearingTo(locationPoints[i])))
+//                        directionOk = true
+//                if(!directionOk)
+//                    notifyUser("Wrong direction!")
+//            }
+//            else{
+//                if(compareBearings(location.bearing, location.bearingTo(locationPoints[lastVisitedIndex+1]))){
+//                    lastCorrectLocation = location
+//                    return
+//                }
+//                notifyUser("Wrong direction!")
+//                userLost = true
+//            }
+//        }
+//    }
 
 }

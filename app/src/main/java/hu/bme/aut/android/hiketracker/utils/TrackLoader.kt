@@ -21,10 +21,8 @@ import java.io.InputStream
 import java.net.URI
 
 
-class TrackLoader(viewModel: TrackViewModel, context: Context){
-    private val viewModel : TrackViewModel = viewModel
+class TrackLoader(private val viewModel: TrackViewModel, private val context: Context){
     private val parser = GPXParser()
-    private val context = context
 
    /*suspend */fun loadFile(path: Uri?){
         var parsedGpx : Gpx? = null
@@ -46,9 +44,9 @@ class TrackLoader(viewModel: TrackViewModel, context: Context){
             return
         } else {
             //success, save points
-            val points = mutableListOf<hu.bme.aut.android.hiketracker.model.Point>()
+            val points = mutableListOf<Point>()
        //     withContext(Dispatchers.IO) {
-                for (trk in parsedGpx!!.tracks) {
+                for (trk in parsedGpx.tracks) {
                     var i = 0
                     for (trkseg in trk.trackSegments) {
                         for (trkpoint in trkseg.trackPoints) {
@@ -64,7 +62,7 @@ class TrackLoader(viewModel: TrackViewModel, context: Context){
 
     }
 
-    fun TrackPoint.toModelPoint(ordinal: Int): Point{
+    private fun TrackPoint.toModelPoint(ordinal: Int): Point{
         return Point(
             ordinal = ordinal,
             latitude = this.latitude,
