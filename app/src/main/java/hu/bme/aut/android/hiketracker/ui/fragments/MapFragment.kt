@@ -88,34 +88,36 @@ class MapFragment : Fragment(), PositionCheckerService.OnViewUpdateNeededListene
     }
 
     private fun drawPolyline(points: List<Point>) {
-            val mapPoints = points?.map{ it -> LatLng(it.latitude, it.longitude)}
-            val polyline = mMap?.addPolyline(
+            val mapPoints = points.map{ it -> LatLng(it.latitude, it.longitude)}
+            mMap.addPolyline(
                 PolylineOptions().clickable(true).color(Color.BLUE).addAll(
                     mapPoints
                 )
             )
-            mMap?.addMarker(MarkerOptions().apply {
-                position(mapPoints?.get(0) ?: LatLng(45.508888, -73.561668))
-                title("Starting point")
+            mMap.addMarker(MarkerOptions().apply {
+                position(mapPoints[0])
+                title(getString(R.string.starting_point_label))
             })
             if(currentPosition == null)
-                currentPosition = mapPoints?.get(0)
-            mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, currentZoom))
-
+                currentPosition = mapPoints[0]
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, currentZoom))
     }
 
     //source: https://www.zoftino.com/android-show-current-location-on-map-example
     private val onMyLocationButtonClickListener = OnMyLocationButtonClickListener {
-        mMap.setMinZoomPreference(20f)
+        currentZoom = 20.0f
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(currentZoom))
         false
     }
 
     override fun onViewUpdateNeeded(location: Location) {
         currentPosition = LatLng(location.latitude,
             location.longitude)
-        mMap?.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition(currentPosition, currentZoom, 0.0f, location.bearing)))
-        requireActivity().tvDistance.text = "Distance: " + "%.2f".format(sp.getFloat(
-            TAG_TOTAL_DISTANCE,
-            0.0F) / 1000) + " km"
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(CameraPosition(currentPosition,
+            currentZoom,
+            0.0f,
+            location.bearing)))
+        val distance = sp.getFloat(TAG_TOTAL_DISTANCE,0.0F) / 1000
+        this.tvDistance.text = getString(R.string.distance_label, distance)
     }
 }

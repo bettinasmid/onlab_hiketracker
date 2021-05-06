@@ -9,6 +9,7 @@ import permissions.dispatcher.NeedsPermission
 import java.io.*
 import java.time.LocalDateTime
 
+
 class Logger ( val context : Context){
     private val TAG = "MEDIA"
     private var tv : String = ""

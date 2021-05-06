@@ -20,7 +20,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import hu.bme.aut.android.hiketracker.R
-import hu.bme.aut.android.hiketracker.TrackerApplication.Companion.logger
+import hu.bme.aut.android.hiketracker.logger.Logger
 import hu.bme.aut.android.hiketracker.service.PositionCheckerService
 import hu.bme.aut.android.hiketracker.ui.fragments.MapFragment
 import hu.bme.aut.android.hiketracker.utils.TrackLoader
@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         val STATE_IS_BOUND = "isBound"
     }
 
+    private lateinit var logger: Logger
     private val viewModel : TrackViewModel by viewModels()
     private lateinit var positionCheckerService: PositionCheckerService
     private var serviceIntent: Intent? = null
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        logger = Logger(this)
         logger.log("MainActivity onCreate called")
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)

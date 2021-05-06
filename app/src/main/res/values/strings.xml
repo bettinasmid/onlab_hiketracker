@@ -12,4 +12,6 @@
     <string name="title_activity_tabbed">TabbedActivity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
+    <string name="distance_label">Distance: %1$f km</string>
+    <string name="starting_point_label">Starting point</string>
 </resources>

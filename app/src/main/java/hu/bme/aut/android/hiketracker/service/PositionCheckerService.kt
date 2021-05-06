@@ -14,7 +14,7 @@ import androidx.lifecycle.*
 import hu.bme.aut.android.hiketracker.R
 import hu.bme.aut.android.hiketracker.TrackerApplication
 import hu.bme.aut.android.hiketracker.TrackerApplication.Companion.TAG_TOTAL_DISTANCE
-import hu.bme.aut.android.hiketracker.TrackerApplication.Companion.logger
+import hu.bme.aut.android.hiketracker.logger.Logger
 import hu.bme.aut.android.hiketracker.model.Point
 import hu.bme.aut.android.hiketracker.repository.PointRepository
 import hu.bme.aut.android.hiketracker.utils.LocationProvider
@@ -23,7 +23,7 @@ import kotlinx.coroutines.*
 import java.lang.Integer.max
 
 class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocationAvailable {
-
+    private lateinit var logger : Logger
     public var enabled = false
     private val NOTIF_FOREGROUND_ID = 8
     //utilities
@@ -70,6 +70,7 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
 
     override fun onCreate() {
         super.onCreate()
+        logger = Logger(this)
         locationProvider = LocationProvider(applicationContext,this)
         val pointDao = TrackerApplication.pointDatabase.pointDao()
         notificationHandler = NotificationHandler(
@@ -194,7 +195,10 @@ class PositionCheckerService : LifecycleService(), LocationProvider.OnNewLocatio
             if(!userHeadingBack && !userSkippedPoint) { //they are failing to head back to the track, notify them
                 notifyUser("Wrong direction!")
                 return
-            }  //else do nothing, they are in the process of getting back
+            } else {
+                userLost = false
+                logger.log("\tswitched off lost mode")
+            }
 
         } else{ //they've been following the track so far
             logger.log("\tuser is close enough to tracksegment: ${userCloseToTrack}")

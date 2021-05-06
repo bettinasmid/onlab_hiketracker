@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         tools:context=".ui.fragments.MapFragment"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        tools:layout_editor_absoluteY="-16dp" />
 
     <Switch
         android:id="@+id/swSatellite"
@@ -23,5 +23,16 @@
         android:text="Sat"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/map" />
+
+    <TextView
+        android:id="@+id/tvDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Total Distance" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
